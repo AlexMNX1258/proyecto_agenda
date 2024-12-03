@@ -4,7 +4,7 @@
 $host = "localhost";  // Nombre del host
 $username = "root";   // Usuario de la base de datos
 $password = "";       // Contraseña de la base de datos
-$database = "bd_agenda2";  // Nombre de la base de datos
+$database = "bd_agenda";  // Nombre de la base de datos
 
 // Crear conexión
 $conexion = mysqli_connect($host, $username, $password, $database);

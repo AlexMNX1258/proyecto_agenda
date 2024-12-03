@@ -12,24 +12,40 @@ class Login {
         $this->email = $email;
         $this->password = $password;
     }
-    // Método para registrar un usuario
     public function registrarUsuario($nombre, $email, $password) {
-    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-    $sql = "INSERT INTO usuarios (nombre, email, password) VALUES (?, ?, ?)";
-    if ($stmt = mysqli_prepare($this->conexion, $sql)) {
-        mysqli_stmt_bind_param($stmt, "sss", $nombre, $email, $hashed_password);
-        if (mysqli_stmt_execute($stmt)) {
-            mysqli_stmt_close($stmt); 
-            return "Usuario registrado exitosamente.";
-        } else {
-            $error = "Error al registrar el usuario: " . mysqli_stmt_error($stmt);
-            mysqli_stmt_close($stmt);
-            return $error;
+        // Verificar primero si el email ya existe
+        $sql_check = "SELECT id FROM usuarios WHERE email = ?";
+        $stmt_check = mysqli_prepare($this->conexion, $sql_check);
+        mysqli_stmt_bind_param($stmt_check, "s", $email);
+        mysqli_stmt_execute($stmt_check);
+        mysqli_stmt_store_result($stmt_check);
+        
+        // Si ya existe un usuario con este email, devolver un error
+        if (mysqli_stmt_num_rows($stmt_check) > 0) {
+            mysqli_stmt_close($stmt_check);
+            return "alert('El correo electrónico ya está registrado.');";
         }
-    } else {
-        return "Error al preparar la consulta: " . mysqli_error($this->conexion);
+        mysqli_stmt_close($stmt_check);
+        
+        // Si no existe, proceder con el registro
+        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+        $sql = "INSERT INTO usuarios (nombre, email, password) VALUES (?, ?, ?)";
+        
+        if ($stmt = mysqli_prepare($this->conexion, $sql)) {
+            mysqli_stmt_bind_param($stmt, "sss", $nombre, $email, $hashed_password);
+            
+            if (mysqli_stmt_execute($stmt)) {
+                mysqli_stmt_close($stmt);
+                return "alert('Usuario registrado exitosamente.');";
+            } else {
+                $error = mysqli_stmt_error($stmt);
+                mysqli_stmt_close($stmt);
+                return "alert('Error al registrar: " . $error . "');";
+            }
+        } else {
+            return "alert('Error al preparar la consulta: " . mysqli_error($this->conexion) . "');";
+        }
     }
-}
     // Método para iniciar sesión
     public function iniciar_sesion($email, $password) {
         try {
@@ -66,5 +82,15 @@ class Login {
             mysqli_stmt_close($stmt);
         }
     }
+    public function verificarEmailExistente($email) {
+        $query = "SELECT COUNT(*) as total FROM usuarios WHERE email = ?";
+        $stmt = $this->conexion->prepare($query);
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $resultado = $stmt->get_result();
+        $fila = $resultado->fetch_assoc();
+        return $fila['total'] > 0; // Retorna true si hay coincidencias
+    }
+
 }
 ?>

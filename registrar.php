@@ -10,21 +10,31 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = $_POST['email'];
     $password = $_POST['password'];
 
-   $respuesta = $usuario->registrarUsuario($nombre, $email, $password);
-   if ($respuesta) {
-      $mensaje = '<div class="alert alert-success text-center" role="alert">
-                      Usuario registrado exitosamente.
-                  </div>';
-                  header("Location: index.php"); 
-                  exit;
-
+    // Verificar si el email ya existe en la base de datos
+    if ($usuario->verificarEmailExistente($email)) {
+        // Email ya registrado
+        $mensaje = '<div class="alert alert-warning text-center" role="alert">
+                        El email ya está registrado. Intenta con otro email.
+                    </div>';
     } else {
-      $mensaje = '<div class="alert alert-danger text-center" role="alert">
-                      Hubo un error al registrar al usuario. Inténtalo de nuevo.
-                  </div>';
+        // Registrar al usuario si el email no existe
+        $respuesta = $usuario->registrarUsuario($nombre, $email, $password);
+
+        if ($respuesta) {
+            $mensaje = '<div class="alert alert-success text-center" role="alert">
+                            Usuario registrado exitosamente.
+                        </div>';
+            header("Location: index.php"); 
+            exit;
+        } else {
+            $mensaje = '<div class="alert alert-danger text-center" role="alert">
+                            Hubo un error al registrar al usuario. Inténtalo de nuevo.
+                        </div>';
+        }
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>

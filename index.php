@@ -50,7 +50,7 @@ $result = mysqli_query($conexion, $sql);
         </div>
         
         <div class="text-center mt-4">
-            <a href="../1/registrar.php" class="btn btn-success">
+            <a href="../proyecto_agenda/registrar.php" class="btn btn-success">
                 <i class="bi bi-person-plus me-2"></i>Registrar Nuevo Usuario
             </a>
         </div>
